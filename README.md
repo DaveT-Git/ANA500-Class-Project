@@ -36,5 +36,33 @@ The dataset is a subset of the 2014 BRFSS survey with 5,000 rows and 34 variable
    - Post-mode imputation: 1 (627), 2 (39), 3 (4258), 4 (76).
    - Recoded to `DIABETE3_binary`: 1 and 4 = Yes (703), 2 and 3 = No (4297).
    - Original `DIABETE3` retained for EDA.
+6. **Correlation Analysis**:
+   - `EXERANY2` and `_TOTINDA` had a correlation of 1, eliminated `_TOTINDA` and will use `EXERANY2`.  Both were binary yes/no categorical variables.
+   - `WEIGHT2_capped` and `_BMI5CAT` had a correlation of 0.77, eliminated `WEIGHT2_capped` and will use `_BMI5CAT`. `_BMI5CAT` is a categorical variable with 4 easily understood           categories, (underweight, normal, overweight and obese).
+7. **Additional Recoding**:
+   - `INCOME2` was recoded from 8 narrow unbalanced categories to 5 broader and better balanced categories (`INCOME_recoded`: 1=<20k, 2=20-35k, 3=35-50k, 4=50-75k, 5=>75k).
+   - `_AGEG5YR` was recoded from 13 five-year categories to 4 categories (`AGE_recoded`: 1=18-34, 2=35-49, 3=50-65, 4=65-99).
+   - `_BMI5CAT` was recoded from 4 categories to three categories by combining underweight and normal into one category resulting in (`BMI_recoded`: 1=Normal, 2=Overwight, 3=Obese).
+   - `DRVISITS_capped` had several floating point numbers that resulted in over 40 categories, so they were recoded into integers resulting in 12 categories, with 12 being the capped       variable from the outlier capping previously performed (`DRVISITS_recoded`).
+   - `EMPLOY1` was recoded from 8 to 4 categories. ‘Employed for wages’ and ‘Self-employed’ were combined into ‘Working.’ ‘Retired’ remained its own category. ‘Homemaker’ and               ‘student’ were combined, and ‘out of work >= to 1 year,’ ‘out of work < 1 year’ and ‘unable to work’ were combined, resulting in (`EMPLOY_recoded`: 1=Working, 2=Retired,              3=Homemaker/Student, 4=Out of/unable to work).
+   - `MENTHLTH`, which represented the number of days the respondent reported their mental health being “not good” over the last 30 days, which resulted in 27 categories, was recoded       into four categories (`MNTLHLTH_recoded`: 0 = 0 days, 1 = 1-5 days, 2 = 6-15 days, 3 = 16-30 days).
 
-## Repository Structure
+## Feature selection process
+
+To determine the most relevant variables for predicting diabetes, we explored several statistical methods and blended the results with domain expertise.
+
+### Methods
+*   **Principal Component Analysis (PCA):** Analyzed feature loadings on the first five principal components, which collectively captured approximately 32.2% of the total variance. The analysis identified important variables related to health (`GENHLTH`, `MENTHLTH_recode`), demographics (`AGE_recoded`), and socioeconomic status (`INCOME_recoded`).
+*   **Recursive Feature Elimination (RFE):** A backward elimination method selected an optimal subset of 15 features based on a model's performance, achieving an accuracy of 0.713.
+*   **Forward Selection:** A forward-building method using F1-scores was implemented to iteratively add the best-performing features. Analysis showed diminishing returns after the first 10 features, with a final F1-score of 0.435 and accuracy of 0.738.
+
+### Final selection
+Based on a combined assessment of the statistical results and domain knowledge, a final set of 12 features was selected to build the predictive model. These include:
+*   **Health:** `GENHLTH`, `BMI_recoded`, `CVDCRHD4`, `CHCKIDNY`, `DRVISITS_recoded`, `EXERANY2`, `MENTHLTH_recode`
+*   **Demographic:** `AGE_recoded`
+*   **Socioeconomic:** `INCOME_recoded`, `_EDUCAG`, `EMPLOY_recoded`
+*   **Other:** `DECIDE`
+```
+  
+
+
