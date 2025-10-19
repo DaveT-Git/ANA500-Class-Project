@@ -86,6 +86,88 @@ Given the imbalanced dataset (~6:1 ratio of No to Yes in `DIABETE3_binary`), the
 
 **Evaluation Strategy**: Models will be sorted by F1-score and ROC-AUC to prioritize those that balance precision and recall while maintaining strong class discrimination. This ensures robust performance on the minority class (diabetes positive), aligning with the project’s goal of accurate diabetes prediction.
 
+## Baseline Model Training and Evaluation
 
+To establish a performance baseline for the diabetes prediction project using the 2014 BRFSS dataset, logistic regression and Support Vector Machine (SVM) models with Radial Basis Function (RBF) and Linear kernels were trained and evaluated on the preprocessed dataset (12 one-hot encoded and scaled features, 80/20 train-test split with stratification, class weights `{0: 1.0, 1: ~6.11}` to address the ~6:1 imbalance in `DIABETE3_binary`). Hyperparameter tuning and cross-validation were performed to optimize models, followed by feature coefficient analysis and feature reduction experiments to refine the feature set for the upcoming deep learning module (Micro Project 4).
+
+### Logistic Regression
+- **Model**: Trained a basic logistic regression model on the encoded and scaled dataset.
+- **Hyperparameter Tuning**: Used GridSearchCV to tune the following parameters:
+  - `C`: [0.01, 0.1, 1, 10, 100]
+  - `penalty`: ['l1', 'l2']
+  - `solver`: ['liblinear', 'saga']
+- **Performance** (untuned):
+  - **Accuracy**: 0.720 (high, likely due to majority class dominance)
+  - **ROC-AUC**: 0.7820 (solid class separation)
+  - **F1-Score**: 0.3991 (decent for imbalanced data)
+  - **Recall**: 0.6596 (good, but lower than SVM Linear)
+  - **Precision**: 0.2862 (comparable to SVM Linear)
+- **Strengths**: High accuracy and good ROC-AUC, indicating effective class separation. Decent F1-score and recall for the minority class (diabetes positive).
+- **Weaknesses**: Lower recall than SVM (Linear), missing more positive cases. Precision similar to SVM (Linear), with comparable false positives.
+- **Tuning Impact**: Hyperparameter tuning reduced F1-score and recall compared to the untuned model, suggesting the default parameters were better suited for this dataset. The untuned model is preferred.
+
+### Support Vector Machine (RBF Kernel)
+- **Model**: Trained an SVM model with RBF kernel on the encoded and scaled dataset.
+- **Hyperparameter Tuning**: Used GridSearchCV to tune:
+  - `C`: [0.1, 1, 10]
+  - `gamma`: ['scale', 'auto', 0.001, 0.01, 0.1]
+- **Performance** (tuned, C=1, gamma=0.001):
+  - **Accuracy**: 0.735 (highest, but skewed by majority class)
+  - **ROC-AUC**: 0.7434 (lowest among models)
+  - **F1-Score**: 0.3552 (lowest)
+  - **Recall**: 0.5177 (lowest, missing many positive cases)
+  - **Precision**: 0.2704 (lowest, more false positives)
+- **Strengths**: Highest accuracy, though biased toward the majority class. Tuning improved performance over the untuned model.
+- **Weaknesses**: Lowest recall and F1-score, indicating poor performance on the minority class (diabetes positive). Lowest ROC-AUC, suggesting weaker class separation.
+- **Tuning Impact**: Tuning (C=1, gamma=0.001) significantly improved F1-score and recall over the untuned SVM (RBF), showing the RBF kernel benefits from a smaller gamma for this dataset.
+
+### Support Vector Machine (Linear Kernel)
+- **Model**: Trained an SVM model with Linear kernel on the encoded and scaled dataset.
+- **Hyperparameter Tuning**: Used GridSearchCV to tune:
+  - `C`: [0.01, 0.1, 1]
+- **Performance** (tuned, C=0.01):
+  - **Accuracy**: 0.712 (slightly lower, less critical due to imbalance)
+  - **ROC-AUC**: 0.7858 (near-highest, excellent class separation)
+  - **F1-Score**: 0.4125 (highest among models)
+  - **Recall**: 0.7021 (highest, capturing most positive cases)
+  - **Precision**: 0.2870 (comparable to logistic regression)
+- **Strengths**: Highest recall and F1-score, ideal for medical screening to minimize missed diabetes cases. Near-highest ROC-AUC, indicating excellent class separation.
+- **Weaknesses**: Slightly lower F1-score than untuned version and similar precision to logistic regression, indicating comparable false positives. Lower accuracy than tuned version, but accuracy is less critical for imbalanced data.
+- **Tuning Impact**: Tuning with stronger regularization (C=0.01) improved F1-score over the untuned model, suggesting a simpler model avoids overfitting on the imbalanced dataset.
+
+### Cross-Validation
+- Performed cross-validation for all models (logistic regression, SVM RBF, SVM Linear) to provide a more robust estimate of generalization performance compared to a single train-test split. Cross-validation results informed the selection of the best model by ensuring stable metric estimates.
+
+### Consolidated Results
+- **Best Model**: **SVM (Linear, Tuned, C=0.01)**
+  - **Metrics**: Highest F1-score (0.4125), strong recall (0.7021), and near-highest ROC-AUC (0.7858).
+  - **Rationale**: Excels at capturing most positive cases (high recall), critical for medical screening to minimize missed diabetes diagnoses. Balances precision and recall (high F1-score) and maintains excellent class separation (high ROC-AUC). Outperforms untuned SVM (Linear) in F1-score and accuracy, showing tuning optimized performance for the imbalanced dataset.
+- **Visualization**: Consolidated ROC curves for all models were plotted to compare class separation performance, with SVM (Linear, Tuned) showing near-best performance (see `notebooks/06_baseline_models.ipynb`).
+
+### Feature Coefficient Analysis (SVM Linear, Tuned)
+- Examined feature coefficients for the best model (SVM Linear, Tuned) to assess feature importance:
+
+### Feature Reduction Experiments
+
+To optimize the feature set for the deep learning module (Micro Project 4), two feature reduction experiments were conducted using the coefficients from the best baseline model (SVM Linear, Tuned with C=0.01). Features with low absolute coefficients were removed to assess their impact on model performance for predicting `DIABETE3_binary`.
+
+- **Aggressive Reduction**:
+  - **Reduced Feature Set**: Eliminated features with absolute coefficients <0.05 in SVM (Linear, Tuned):
+    - Features: `AGE_recoded_4.0`, `AGE_recoded_3.0`, `AGE_recoded_2.0`, `GENHLTH_recoded_3.0`, `GENHLTH_recoded_2.0`, `BMI_recoded_3`, `BMI_recoded_2`, `EMPLOY_recoded_2.0`, `EMPLOY_recoded_4.0`, `EMPLOY_recoded_3.0`, `CVDCRHD4_2.0`, `CHCKIDNY_2.0`
+  - **Experiment**: Re-ran SVM (Linear, Tuned) with the reduced feature set.
+  - **Performance Comparison**:
+    - **F1-Score**: Original = 0.4125, Reduced = 0.4066, Change = -0.0059
+    - **Recall**: Original = 0.7021, Reduced = 0.6950, Change = -0.0071
+    - **ROC-AUC**: Original = 0.7858, Reduced = 0.7845, Change = -0.0012
+  - **Conclusion**: The slight performance drop suggests that the removed features (e.g., `MENTHLTH_recode`, `DECIDE`) contributed marginally useful information for predicting `DIABETE3_binary`, indicating their value in the model.
+
+- **Less Aggressive Reduction**:
+  - **Reduced Feature Set**: Eliminated features with absolute coefficients <0.01 in SVM (Linear, Tuned):
+    - Features: `AGE_recoded_4.0`, `AGE_recoded_3.0`, `AGE_recoded_2.0`, `GENHLTH_recoded_3.0`, `GENHLTH_recoded_2.0`, `BMI_recoded_3`, `BMI_recoded_2`, `EMPLOY_recoded_2.0`, `EMPLOY_recoded_4.0`, `EMPLOY_recoded_3.0`, `CVDCRHD4_2.0`, `_EDUCAG_4.0`, `CHCKIDNY_2.0`, `INCOME_recoded_2.0`, `DRVISITS_recoded_2_4`, `INCOME_recoded_5.0`, `DRVISITS_recoded_2_2`, `MENTHLTH_recode_1`
+  - **Experiment**: Re-ran SVM (Linear, Tuned) with this less aggressive reduced feature set.
+  - **Performance Comparison**: Observed an across-the-board performance drop (specific metrics not provided), indicating that even features with low coefficients (<0.01) contributed useful information for predicting `DIABETE3_binary`.
+  - **Conclusion**: The performance degradation reinforces that all selected features provide valuable predictive information.
+
+- **Final Decision**: Retained the original 12-feature set (post-one-hot encoding: `GENHLTH`, `BMI_recoded`, `AGE_recoded`, `INCOME_recoded`, `_EDUCAG`, `MENTHLTH_recode`, `EMPLOY_recoded`, `CVDCRHD4`, `CHCKIDNY`, `DRVISITS_recoded`, `EXERANY2`, `DECIDE`) for Micro Project 4, as both feature reduction experiments led to performance drops, suggesting all features are important for optimal model performance.
 
 
