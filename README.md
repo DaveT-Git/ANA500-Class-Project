@@ -62,7 +62,30 @@ Based on a combined assessment of the statistical results and domain knowledge, 
 *   **Demographic:** `AGE_recoded`
 *   **Socioeconomic:** `INCOME_recoded`, `_EDUCAG`, `EMPLOY_recoded`
 *   **Other:** `DECIDE`
-```
-  
+
+# Final Preparation for Modeling
+
+To prepare the dataset for modeling, the following steps were performed to ensure the data is in a suitable format and addresses the class imbalance in `DIABETE3_binary` (~14% Yes, ~86% No):
+
+- **One-Hot Encoding of Categorical Variables**: Applied one-hot encoding to all 12 selected features (`GENHLTH`, `BMI_recoded`, `AGE_recoded`, `INCOME_recoded`, `_EDUCAG`, `MENTHLTH_recode`, `EMPLOY_recoded`, `CVDCRHD4`, `CHCKIDNY`, `DRVISITS_recoded`, `EXERANY2`, `DECIDE`) to convert categorical variables into binary columns. This avoids assuming ordinal relationships and ensures compatibility with neural network inputs. The `OneHotEncoder` from scikit-learn was used, dropping the first category to prevent multicollinearity.
+- **Class Weights for Imbalanced Data**: Computed class weights to address the ~6:1 imbalance in `DIABETE3_binary` (class 0: ~4297, class 1: ~703). Assigned weights `{0: 1.0, 1: ~6.11}` to penalize misclassifications of the minority class (diabetes positive) more heavily during training, improving performance on the Yes class.
+- **Train-Test Split**: Performed an 80/20 train-test split with stratification to maintain the ~14% Yes proportion in both sets. Used `random_state=42` for reproducibility.
+- **Feature Scaling**: Applied `StandardScaler` to the one-hot encoded features *after* the train-test split to standardize the data (mean=0, std=1), ensuring stable neural network training. The scaler was saved as a pickle file in `data/processed/scaler.pkl` for future use.
+- **Custom Python Functions**: Developed a set of Python functions to streamline training, evaluation, and visualization of binary classification models. These functions automate:
+  - Training models with specified hyperparameters.
+  - Calculating key performance metrics (accuracy, precision, recall, F1-score, ROC-AUC).
+  - Generating visualizations, including confusion matrices, ROC curves, and Precision-Recall (PR) curves, to compare model performance effectively.
+
+## Model Evaluation Metrics
+
+Given the imbalanced dataset (~6:1 ratio of No to Yes in `DIABETE3_binary`), the following metrics are prioritized for evaluating model performance, with a focus on the minority class (diabetes positive):
+
+- **Recall**: Measures the proportion of actual positive cases (diabetes) correctly identified, calculated as TP / (TP + FN). High recall is critical for medical applications like diabetes detection to minimize false negatives (missing positive cases), which could have serious health implications.
+- **F1-Score**: The harmonic mean of precision and recall, calculated as \(2 \times \frac{\text{precision} \times \text{recall}}{\text{precision} + \text{recall}}\). This metric balances precision and recall, making it suitable for imbalanced datasets where accuracy can be misleading due to the dominance of the negative class.
+- **ROC-AUC**: Area under the Receiver Operating Characteristic curve, quantifying the model’s ability to distinguish between classes across all classification thresholds. A higher ROC-AUC indicates better overall performance, particularly important for imbalanced data to ensure good class separation.
+
+**Evaluation Strategy**: Models will be sorted by F1-score and ROC-AUC to prioritize those that balance precision and recall while maintaining strong class discrimination. This ensures robust performance on the minority class (diabetes positive), aligning with the project’s goal of accurate diabetes prediction.
+
+
 
 
