@@ -138,14 +138,25 @@ To establish a performance baseline for the diabetes prediction project using th
 ### Cross-Validation
 - Performed cross-validation for all models (logistic regression, SVM RBF, SVM Linear) to provide a more robust estimate of generalization performance compared to a single train-test split. Cross-validation results informed the selection of the best model by ensuring stable metric estimates.
 
+
+
 ### Consolidated Results
+
+**Visualization**: Consolidated results table for all models (Logistic Regression, SVM RBF, SVM Linear, tuned and untuned) was prepared to compare overall performance, with SVM (Linear, Tuned) showing near-best performance:
+  <img src="figures/consolidated_results_table.png" alt="Consolidated ROC Plot" width="70%" height="auto">
+
 - **Best Model**: **SVM (Linear, Tuned, C=0.01)**
   - **Metrics**: Highest F1-score (0.4125), strong recall (0.7021), and near-highest ROC-AUC (0.7858).
   - **Rationale**: Excels at capturing most positive cases (high recall), critical for medical screening to minimize missed diabetes diagnoses. Balances precision and recall (high F1-score) and maintains excellent class separation (high ROC-AUC). Outperforms untuned SVM (Linear) in F1-score and accuracy, showing tuning optimized performance for the imbalanced dataset.
-- **Visualization**: Consolidated ROC curves for all models were plotted to compare class separation performance, with SVM (Linear, Tuned) showing near-best performance (see `notebooks/06_baseline_models.ipynb`).
+- **Visualization**: Consolidated ROC curves for all models were plotted to compare class separation performance, with SVM (Linear, Tuned) showing near-best performance.
+<img src="figures/consolidated_roc_plot_screenshot.png" alt="Consolidated ROC Plot" width="60%" height="auto">
 
 ### Feature Coefficient Analysis (SVM Linear, Tuned)
 - Examined feature coefficients for the best model (SVM Linear, Tuned) to assess feature importance:
+
+**Visualization**: Feature Coefficients for SVM Linear - Tuned:
+
+<img src="figures/svm_linear_coefficients_screenshot.png" alt="SVM Linear Feature Coefficients" width="70%" height="auto">
 
 ### Feature Reduction Experiments
 
