@@ -181,4 +181,45 @@ To optimize the feature set for the deep learning module (Micro Project 4), two 
 
 - **Final Decision**: Retained the original 12-feature set (post-one-hot encoding: `GENHLTH`, `BMI_recoded`, `AGE_recoded`, `INCOME_recoded`, `_EDUCAG`, `MENTHLTH_recode`, `EMPLOY_recoded`, `CVDCRHD4`, `CHCKIDNY`, `DRVISITS_recoded`, `EXERANY2`, `DECIDE`) for Micro Project 4, as both feature reduction experiments led to performance drops, suggesting all features are important for optimal model performance.
 
+## Deep Learning Modeling Overview
+- Implemented **Multi-Layer Perceptron (MLP)** models using Keras/TensorFlow for binary classification of diabetes (`DIABETE3_binary`), starting with a basic architecture and iteratively adding dropout, early stopping, L2 regularization, batch normalization, adjusted learning rates, and class weights to address overfitting and class imbalance.
+- Trained all models on scaled one-hot encoded features with 50–100 epochs and batch sizes of 32–64, using binary cross-entropy loss and Adam optimizer.
 
+## MLP Model Evolution
+- **Model 1: Basic MLP** – Baseline with 3 layers (64 → 32 → 1), no regularization; achieved F1 = 0.322, ROC-AUC = 0.711; served as a starting point but showed overfitting.
+- **Model 2: Advanced MLP** – Increased complexity (128 → 64 → 32 → 1), added dropout (0.3) and early stopping (patience=10); best MLP F1 = 0.410, ROC-AUC = 0.758.
+- **Model 2A: Improved Advanced MLP** – Simplified to 3 layers (64 → 32 → 16), added L2 regularization, dropout 0.4, lower learning rate (0.0001); F1 = 0.390, ROC-AUC = 0.765.
+- **Model 2B: Further Improved MLP** – Further reduced to 3 layers (32 → 16 → 8), added batch normalization, dropout 0.5, class weight 7.0; highest recall = 0.773, ROC-AUC = 0.768.
+
+## NAM Model Implementation (DNAMite)
+- Used **Neural Additive Models (NAM)** via `dnamite` to improve interpretability over black-box MLPs; trained on top 3, 5, 10, and full (~27) features selected from SVM coefficients.
+- Applied **threshold tuning** using precision-recall curves to match SVM recall (~0.702), enabling direct F1 comparison.
+- **Top-10 NAM (tuned)** achieved F1 = 0.400, ROC-AUC = 0.778 — best balance of performance and interpretability.
+
+## NAM Interpretability
+- NAMs decompose predictions into **additive feature contributions**, with each feature modeled by an independent subnetwork.
+- Enables **clear visualizations**:
+  - **Feature Importance Bar Chart**: Shows relative contribution of each feature.
+  <img src="figures/NAM_feature_importance.png" alt="NAM Feature Importance" width="70%" height="auto">
+  - **Partial Dependence Plots**: Displays how predicted diabetes risk changes with each feature (e.g., non-linear BMI effect).
+   <img src="figures/NAM_feature_partial_dependence.png" alt="NAM Partial DependencenPlots" width="70%" height="auto">
+- Far more interpretable than MLPs or standard deep models — ideal for clinical decision support.
+
+## Final Top 3 Model Comparison
+
+| Model                          | Accuracy | Precision | Recall | F1     | ROC-AUC |
+|--------------------------------|----------|-----------|--------|--------|---------|
+| **SVM (Linear) - Tuned**       | **0.7180** | 0.2920    | **0.7021** | **0.4125** | **0.7858** |
+| DNAMite NAM (Top-10, Tuned)    | 0.7030   | 0.2797    | 0.7021 | 0.4000 | 0.7779  |
+| Advanced MLP                   | 0.7350   | **0.2987** | 0.6525 | 0.4098 | 0.7577  |
+
+- **Winner**: **SVM (Linear)** — best F1, recall, and ROC-AUC; stable and efficient.
+- **Runner-Up**: **NAM (Top-10, Tuned)** — near-SVM performance with **full interpretability**.
+- **MLP**: Strong but **underperformed** due to small dataset and overfitting risk.
+
+---
+
+### Notes
+- SVM excels on **small, tabular, imbalanced datasets** with linear or near-linear patterns.
+- NAM is **ideal when interpretability is critical** (e.g., healthcare).
+- Deep learning (MLP/NAM) may outperform on **larger, more complex datasets** with non-linear interactions.
