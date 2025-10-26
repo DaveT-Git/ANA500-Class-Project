@@ -200,9 +200,12 @@ To optimize the feature set for the deep learning module (Micro Project 4), two 
 - NAMs decompose predictions into **additive feature contributions**, with each feature modeled by an independent subnetwork.
 - Enables **clear visualizations**:
   - **Feature Importance Bar Chart**: Shows relative contribution of each feature.
-  <img src="figures/NAM_feature_importance.png" alt="NAM Feature Importance" width="70%" height="auto">
-  - **Partial Dependence Plots**: Displays how predicted diabetes risk changes with each feature (e.g., non-linear BMI effect).
-   <img src="figures/NAM_feature_partial_dependence.png" alt="NAM Partial DependencenPlots" width="70%" height="auto">
+<br>   
+   
+  <img src="figures/NAM_feature_importance.png" alt="NAM Feature Importance" width="70%" height="auto">  
+<br>
+- Partial Dependence Plots: Displays how predicted diabetes risk changes with each feature (e.g., non-linear BMI effect).
+   <img src="figures/NAM_feature_partial_dependence.png" alt="NAM Partial DependencenPlots" width="100%" height="auto">   
 - Far more interpretable than MLPs or standard deep models — ideal for clinical decision support.
 
 ## Final Top 3 Model Comparison
