@@ -1,5 +1,21 @@
 # Diabetes Prediction Using 2014 BRFSS Dataset
 
+## Important Medical Disclaimer
+
+**This project is strictly for educational and academic purposes only.**
+
+The diabetes prediction models in this repository are built as part of an ANA500 data science class assignment using a sub-sample of the publicly available 2014 Behavioral Risk Factor Surveillance System (BRFSS) dataset. These models are **not** clinically validated, have **not** undergone any medical or regulatory review, and are **not** intended for real-world use in diagnosing, screening, managing, or predicting diabetes or pre-diabetes in individuals.
+
+Key limitations include:
+- The data is based on **self-reported** survey responses (subject to recall bias, misclassification, and non-response).
+- The target variable (DIABETE3_binary) is a simplified binary recoding and does **not** reflect formal clinical diagnosis criteria.
+- Models were developed for learning purposes only and may produce **false positives or false negatives** — they are **not** reliable for health decisions.
+- No model in this project should ever replace professional medical evaluation, laboratory testing (e.g., A1C, fasting glucose), or consultation with a qualified healthcare provider (physician, endocrinologist, or diabetes educator).
+
+**If you have concerns about diabetes, prediabetes, or any health condition, please consult a licensed medical professional.** Self-diagnosis or reliance on machine learning predictions from this educational project can be dangerous and is strongly discouraged.
+
+This repository demonstrates data preprocessing, exploratory analysis, and neural network modeling techniques — it is **not** a medical tool, diagnostic aid, or health application.
+
 ## Project Overview
 This repository contains the code and documentation for a data science class project (ANA500) aimed at predicting diabetes occurrence using a sub-sample of the 2014 Behavioral Risk Factor Surveillance System (BRFSS) dataset. The goal is to preprocess the dataset, perform exploratory data analysis (EDA), and develop neural network and deep learning models to predict diabetes status. The target variable, `DIABETE3`, is recoded into a binary variable (`DIABETE3_binary`: 1 = Yes [diagnosed diabetes or pre-diabetes], 0 = No [gestational or no diabetes]) to simplify classification for neural network modeling in Modules 3/4. The project includes extensive data cleaning, imputation of missing values and non-response codes, and preparation for advanced modeling.
 
